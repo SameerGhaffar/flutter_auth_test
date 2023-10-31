@@ -3,9 +3,10 @@ import 'dart:io';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_auth_test/home/home_screen.dart';
 import 'package:flutter_auth_test/login/login_screen.dart';
 import 'package:flutter_auth_test/services/auth_service.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:flutter_auth_test/services/storage_service.dart';
 
 import '../functions/funtions.dart';
 
@@ -17,12 +18,14 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
+  final defaultProfilePicFile = File('assets/profile.jpg');
   bool isObscure = true;
   File? selectedImage;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   AuthService authService = AuthService();
+  StorageService storageService = StorageService();
 
   @override
   Widget build(BuildContext context) {
@@ -41,13 +44,19 @@ class _SignupScreenState extends State<SignupScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 InkWell(
-                  onTap:() => onImageClick(),
+                  onTap: () => onImageClick(),
                   child: CircleAvatar(
                     backgroundColor: Colors.blue.withOpacity(0.3),
                     maxRadius: 90,
                     minRadius: 80,
                     child: selectedImage != null
-                        ? Image.file(selectedImage!)
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(90),
+                            child: Image.file(
+                              selectedImage!,
+                              fit: BoxFit.cover,
+                            ),
+                          )
                         : const Icon(
                             Icons.person,
                             size: 100,
@@ -86,7 +95,8 @@ class _SignupScreenState extends State<SignupScreen> {
                         TextSpan(
                             text: ' Login ',
                             style: const TextStyle(
-                                color: Colors.blue, fontWeight: FontWeight.bold),
+                                color: Colors.blue,
+                                fontWeight: FontWeight.bold),
                             recognizer: TapGestureRecognizer()
                               ..onTap = () {
                                 Navigator.of(context).pushAndRemoveUntil(
@@ -108,13 +118,11 @@ class _SignupScreenState extends State<SignupScreen> {
                       child: Container(
                         width: 200,
                         padding: const EdgeInsets.all(6),
-        
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
-        
                           children: [
                             const Spacer(),
                             Image.asset(
@@ -123,9 +131,10 @@ class _SignupScreenState extends State<SignupScreen> {
                               height: 35,
                             ),
                             const Spacer(),
-                            const Text('SignUp With Google',style: TextStyle(
-                                fontWeight: FontWeight.bold
-                            ),),
+                            const Text(
+                              'SignUp With Google',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
                             const Spacer(),
                           ],
                         ),
@@ -222,18 +231,28 @@ class _SignupScreenState extends State<SignupScreen> {
       if (isUserCreated) {
         emailController.clear();
         passwordController.clear();
-        // navigation
+        if (selectedImage != null) {
+          if (await storageService.uploadProfilePic(selectedImage!)) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => HomeScreen(),
+              ),
+            );
+          }
+        } else {
+          storageService.uploadProfilePic(defaultProfilePicFile);
+        }
 
+        // navigation
       }
     }
   }
 
   onGoogleTap() {}
+
   onImageClick() async {
     Functions functions = Functions();
     selectedImage = await functions.pickImage();
-
-
-
+    setState(() {});
   }
 }

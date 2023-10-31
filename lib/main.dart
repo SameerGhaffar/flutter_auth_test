@@ -4,8 +4,6 @@ import 'package:flutter_auth_test/login/login_screen.dart';
 import 'package:flutter_auth_test/signup/signup_screen.dart';
 import 'firebase_options.dart';
 
-
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -13,7 +11,6 @@ Future<void> main() async {
   );
   runApp(const MyApp());
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -49,12 +46,14 @@ class MyApp extends StatelessWidget {
 
 class CheckData extends StatefulWidget {
   const CheckData({super.key});
+
   @override
   State<CheckData> createState() => _CheckDataState();
 }
 
 class _CheckDataState extends State<CheckData> {
-  bool isDataLoad =true;
+  bool isDataLoad = true;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -63,14 +62,17 @@ class _CheckDataState extends State<CheckData> {
   }
 
   getData() async {
-  await Future.delayed(const Duration(seconds: 1));
-   Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const SignupScreen(),), (route) => false);
+    await Future.delayed(const Duration(seconds: 1));
+    Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (context) => const SignupScreen(),
+        ),
+        (route) => false);
   }
+
   @override
   Widget build(BuildContext context) {
-
     return const Scaffold(
-
       body: SafeArea(
         child: Center(
           child: CircularProgressIndicator(),
@@ -78,7 +80,4 @@ class _CheckDataState extends State<CheckData> {
       ),
     );
   }
-
-
 }
-
